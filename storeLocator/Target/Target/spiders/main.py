@@ -3,7 +3,6 @@ import json
 import scrapy
 from scrapy.cmdline import execute as ex
 from Target.db_config import DbConfig
-# from fake_useragent import UserAgent
 from Target.items import dataItem,stateItem
 import os
 import hashlib
@@ -74,13 +73,14 @@ class DataSpider(scrapy.Spider):
                     'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36',
                 }
 
+                # Try to request with requests module...
                 # response = requests.get(
                 #     f'https://easylocator.net/ajax/search_by_lat_lon/Oiselle%20Dealer%20Search/{lat}/{long}/2000/10/null/null',
                 #     headers=headers,
                 # )
                 # print(response.text)
+
                 yield scrapy.Request(url=url,headers=headers,cb_kwargs=meta_dict,callback=self.parse_,dont_filter=True)
-                # yield scrapy.FormRequest(url=url,method="POST",headers=headers,formdata=json_data,meta=meta_dict,callback=self.parse,dont_filter=True)
 
     def parse_(self,response,**kwargs):
         print("Parse Calling.......")
@@ -163,54 +163,16 @@ class DataSpider(scrapy.Spider):
                         for i in range(len(store_data)):
 
                             store_no = store_id
-
-                            store_no = ''
-
-
                             name = store_name
-
-                            name = ''
-
-                            geographic_specifications = store_data.get('data', {}).get('store', {}).get('geographic_specifications', {})
                             latitude = store_data.get('data', {}).get('store', {}).get('geographic_specifications', {}).get('latitude', '')
-
-
                             longitude =store_data.get('data', {}).get('store', {}).get('geographic_specifications', {}).get('longitude', '')
-
-                            longitude = ''
-
-
                             street = store_data['data']['store']['mailing_address']['address_line1']
-
-                            street = ''
-
-
                             city = store_data['data']['store']['mailing_address']['city']
-
-                            city = ''
-
-
                             state = store_data['data']['store']['mailing_address']['state']
                             state = str(state).strip()
-
-                            state = ''
-
-
                             zip_code = store_data['data']['store']['mailing_address']['postal_code']
-
-                            zip_code = ''
-
-
                             county = store_data['data']['store']['mailing_address']['county']
-
-                            county = ''
-
-
                             phone = store_data['data']['store']['main_voice_phone_number']
-
-                            phone = ''
-
-
                             open_hours_list = []
                             main_hours = store_data['data']['store']['rolling_operating_hours']['main_hours']['days']
                             for day_hrs in range(len(main_hours)):
@@ -223,51 +185,15 @@ class DataSpider(scrapy.Spider):
                                 open_hours = ' | '.join(open_hours_list)
                             else:
                                 open_hours = ''
-
-                            open_hours = ''
-
-
                             website_url = store_url
-
-                            website_url = ''
-
-
                             provider = uniq_provider
-
-                            provider = ''
-
-
                             category = 'Apparel And Accessory Stores'
-
-                            category = ''
-
-
                             updated_date = datetime.datetime.today().strftime("%d-%m-%Y")
-
-                            updated_date = ''
-
-
                             country = store_data['data']['store']['mailing_address']['country']
                             if not country or country == "United States":
                                 country = "US"
-
-                            country = ''
-
-
                             status = store_data['data']['store']['status']
-
-                            status = ''
-
-
                             direction_url = map_url
-
-                            direction_url = ''
-
-
-                            pagesave_path = file_name
-
-                            pagesave_path = ''
-
 
                             item = dataItem()
                             item['store_no'] = store_no

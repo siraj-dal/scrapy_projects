@@ -3,7 +3,6 @@ import json
 import scrapy
 from scrapy.cmdline import execute as ex
 from storeLocator.db_config import DbConfig
-# from fake_useragent import UserAgent
 from storeLocator.items import dataItem,stateItem
 import os
 import hashlib
@@ -107,7 +106,7 @@ class DataSpider(scrapy.Spider):
                 # Construct the full URL with parameters
                 url = f"{base_url}?like={params['like']}&lang={params['lang']}&isSOCiLocator={params['isSOCiLocator']}"
 
-                # Make a POST request with Scrapy
+                # Make a POST request with requests module
                 # import requests
                 # response = requests.post(
                 #     'https://hosted.meetsoci.com/burlington/rest/locatorsearch',
@@ -117,6 +116,7 @@ class DataSpider(scrapy.Spider):
                 # )
                 # print(response.text)
 
+                # Make a POST request with Scrapy
                 yield scrapy.Request(url=url,method="POST",headers=headers,body=json.dumps(json_data),cb_kwargs=meta_dict,callback=self.parse_,dont_filter=True)
 
     def parse_(self,response,**kwargs):
@@ -146,129 +146,53 @@ class DataSpider(scrapy.Spider):
         # Start the Crawl the data
         store_list = json_data['response']['collection']
         for i in range(len(store_list)):
-            try:
-                store_no = store_list[i]['clientkey']
-            except Exception as e:
-                store_no = ''
-                print(e)
-            try:
-                name = store_list[i]['city']
-            except Exception as e:
-                name = ''
-                print(e)
-            try:
-                latitude = store_list[i]['latitude']
-            except Exception as e:
-                latitude = ''
-                print(e)
-            try:
-                longitude = store_list[i]['longitude']
-            except Exception as e:
-                longitude = ''
-                print(e)
-            try:
-                street = store_list[i]['address1']
-            except Exception as e:
-                street = ''
-                print(e)
-            try:
-                city = store_list[i]['city']
-            except Exception as e:
-                city = ''
-                print(e)
-            try:
-                state = store_list[i]['state']
-            except Exception as e:
-                print(e)
-            try:
-                zip_code = store_list[i]['postalcode']
-            except Exception as e:
-                zip_code = ''
-                print(e)
-            try:
-                county = store_list[i]['country']
-            except Exception as e:
-                county = ''
-                print(e)
-            try:
-                phone = store_list[i]['phone']
-            except Exception as e:
-                phone = ''
-                print(e)
-            try:
-                open_hours_list = []
-                week_tag = ['mon','tue','wed','thurs','fri','sat','sun']
-                for week_day in week_tag:
-                    open = store_list[i][f'{week_day}open']
-                    close = store_list[i][f'{week_day}close']
-                    if week_day == 'mon':
-                        day_hours = f"Monday:{open}-{close}"
-                    elif week_day == 'tue':
-                        day_hours = f"Tuesday:{open}-{close}"
-                    elif week_day == 'wed':
-                        day_hours = f"Wednesday:{open}-{close}"
-                    elif week_day == 'thurs':
-                        day_hours = f"Thursday:{open}-{close}"
-                    elif week_day == 'fri':
-                        day_hours = f"Friday:{open}-{close}"
-                    elif week_day == 'sat':
-                        day_hours = f"Saturday:{open}-{close}"
-                    elif week_day == 'sun':
-                        day_hours = f"Sunday:{open}-{close}"
-                    else:
-                        day_hours = ''
-                    if day_hours not in open_hours_list:
-                        open_hours_list.append(day_hours)
-                if open_hours_list:
-                    open_hours = ' | '.join(open_hours_list)
-                    store_status = "Open"
+            store_no = store_list[i]['clientkey']
+            name = store_list[i]['city']
+            latitude = store_list[i]['latitude']
+            longitude = store_list[i]['longitude']
+            street = store_list[i]['address1']
+            city = store_list[i]['city']
+            state = store_list[i]['state']
+            zip_code = store_list[i]['postalcode']
+            county = store_list[i]['country']
+            phone = store_list[i]['phone']
+            open_hours_list = []
+            week_tag = ['mon', 'tue', 'wed', 'thurs', 'fri', 'sat', 'sun']
+            for week_day in week_tag:
+                open = store_list[i][f'{week_day}open']
+                close = store_list[i][f'{week_day}close']
+                if week_day == 'mon':
+                    day_hours = f"Monday:{open}-{close}"
+                elif week_day == 'tue':
+                    day_hours = f"Tuesday:{open}-{close}"
+                elif week_day == 'wed':
+                    day_hours = f"Wednesday:{open}-{close}"
+                elif week_day == 'thurs':
+                    day_hours = f"Thursday:{open}-{close}"
+                elif week_day == 'fri':
+                    day_hours = f"Friday:{open}-{close}"
+                elif week_day == 'sat':
+                    day_hours = f"Saturday:{open}-{close}"
+                elif week_day == 'sun':
+                    day_hours = f"Sunday:{open}-{close}"
                 else:
-                    open_hours = ''
-                    store_status = "Close"
-            except Exception as e:
+                    day_hours = ''
+                if day_hours not in open_hours_list:
+                    open_hours_list.append(day_hours)
+            if open_hours_list:
+                open_hours = ' | '.join(open_hours_list)
+                store_status = "Open"
+            else:
                 open_hours = ''
-                store_status = ''
-                print(e)
-            try:
-                url = store_list[i]['website']
-            except Exception as e:
-                url = ''
-                print(e)
-            try:
-                provider = store_list[i]['name']
-            except Exception as e:
-                provider = ''
-                print(e)
-            try:
-                category = 'Apparel And Accessory Stores'
-            except Exception as e:
-                category = ''
-                print(e)
-            try:
-                updated_date = datetime.datetime.today().strftime("%d-%m-%Y")
-            except Exception as e:
-                updated_date = ''
-                print(e)
-            try:
-                country = store_list[i]['country']
-            except Exception as e:
-                country = ''
-                print(e)
-            try:
-                status = store_status
-            except Exception as e:
-                status = ''
-                print(e)
-            try:
-                direction_url = f"http://maps.apple.com?q={name} {street},{city},{zip_code}"
-            except Exception as e:
-                direction_url = ''
-                print(e)
-            try:
-                pagesave_path = file_name
-            except Exception as e:
-                pagesave_path = ''
-                print(e)
+                store_status = "Close"
+            url = store_list[i]['website']
+            provider = store_list[i]['name']
+            category = 'Apparel And Accessory Stores'
+            updated_date = datetime.datetime.today().strftime("%d-%m-%Y")
+            country = store_list[i]['country']
+            status = store_status
+            direction_url = f"http://maps.apple.com?q={name} {street},{city},{zip_code}"
+            pagesave_path = file_name
 
             item = dataItem()
             item['store_no'] = store_no

@@ -8,8 +8,8 @@ class DbConfig():
                                    password='actowiz',
                                    database='apparel_store_locator')
         self.cur = self.con.cursor(pymysql.cursors.DictCursor)
-        self.store_table = 'wolverine_storeid'
-        self.data_table = 'wolverine'
+        self.store_table = 'wolverine_data'
+        self.data_table = 'wolverine_data'
 
     def create_provider_data_table(self):
         # Check if the table already exists
@@ -44,6 +44,7 @@ class DbConfig():
                                           `direction_url` varchar(255) DEFAULT NULL,
                                           `pagesave_path` varchar(255) DEFAULT NULL,
                                           `search_state` varchar(255) DEFAULT NULL,
+                                          `crawl_status` varchar(255) DEFAULT NULL,
                                           PRIMARY KEY (`id`),
                                           UNIQUE KEY `StoreNo` (`store_no`)
                                           )'''
@@ -70,9 +71,8 @@ class DbConfig():
 
     def insert_data_table(self, item):
 
-        query = f'''
-                        INSERT INTO {self.data_table} (store_no, name, latitude, longitude, street, city, state, zip_code, county, phone, open_hours, url, provider, category, updated_date, country, status, direction_url, pagesave_path,search_state)
-                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        query = f'''INSERT INTO {self.data_table} (store_no, name, latitude, longitude, street, city, state, zip_code, county, phone, open_hours, url, provider, category, updated_date, country, status, direction_url, pagesave_path,search_state,crawl_status)
+                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                         '''
         data = (
             item["store_no"],
@@ -94,7 +94,8 @@ class DbConfig():
             item["status"],
             item["direction_url"],
             item["pagesave_path"],
-            item["search_state"]
+            item["search_state"],
+            item["crawl_status"]
 
         )
 
@@ -106,7 +107,26 @@ class DbConfig():
             print(e)
 
     def update_store_status(self,c_status,store_no):
-        qr = f'''update {self.store_table} set status = "{c_status}" where store_no = {store_no}'''
+        if store_no != '':
+            qr = f'''update {self.store_table} set crawl_status = "{c_status}" where store_no = {store_no}'''
+            print(qr)
+        else:
+            qr = f'''update {self.store_table} set crawl_status = "{c_status}"'''
+            print(qr)
+        try:
+            self.cur.execute(qr)
+            self.con.commit()
+        except Exception as e:
+            print(e)
+
+    def update_store_data(self,item):
+        store_no = item['store_no']
+        open_hours = item['open_hours']
+        website_url = item['url']
+        status = item['status']
+        direction_url = item['direction_url']
+        store_file_name = item['pagesave_path']
+        qr = f'''update {self.store_table} set `open_hours` = "{open_hours}", `url` = "{website_url}",`status` = "{status}",`direction_url` = "{direction_url}", `pagesave_path` = "{store_file_name}",`crawl_status` = "Done" where store_no = {store_no}'''
         print(qr)
         try:
             self.cur.execute(qr)

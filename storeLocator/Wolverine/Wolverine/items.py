@@ -34,4 +34,5 @@ class dataItem(scrapy.Item):
     direction_url = scrapy.Field()
     pagesave_path = scrapy.Field()
     search_state = scrapy.Field()
+    crawl_status = scrapy.Field()
     id = scrapy.Field()

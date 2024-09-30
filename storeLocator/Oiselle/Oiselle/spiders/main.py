@@ -71,14 +71,14 @@ class DataSpider(scrapy.Spider):
                     'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36',
                     'x-requested-with': 'XMLHttpRequest',
                 }
-
+                # Try to request with requests module...
                 # response = requests.get(
                 #     f'https://easylocator.net/ajax/search_by_lat_lon/Oiselle%20Dealer%20Search/{lat}/{long}/2000/10/null/null',
                 #     headers=headers,
                 # )
                 # print(response.text)
+                
                 yield scrapy.Request(url=url,method="POST",headers=headers,cb_kwargs=meta_dict,callback=self.parse_,dont_filter=True)
-                # yield scrapy.FormRequest(url=url,method="POST",headers=headers,formdata=json_data,meta=meta_dict,callback=self.parse,dont_filter=True)
 
     def parse_(self,response,**kwargs):
         print("Parse Calling.......")
@@ -116,112 +116,35 @@ class DataSpider(scrapy.Spider):
         for store_type in store_list_type:
             store_list = json_data[f'{store_type}']
             for i in range(len(store_list)):
-                try:
-                    store_no = store_list[i]['id']
-                except Exception as e:
-                    store_no = ''
-                    print(e)
-                try:
-                    name = store_list[i]['name']
-                except Exception as e:
-                    name = ''
-                    print(e)
-                try:
-                    latitude = store_list[i]['lat']
-                except Exception as e:
-                    latitude = ''
-                    print(e)
-                try:
-                    longitude = store_list[i]['lon']
-                except Exception as e:
-                    longitude = ''
-                    print(e)
-                try:
-                    street_1 = store_list[i]['street_address']
-                    street_2 = store_list[i]['street_address_line2']
-                    street_3 = store_list[i]['street_address_line3']
-                    street = f"{street_1} {street_2} {street_3}"
-                except Exception as e:
-                    street = ''
-                    print(e)
-                try:
-                    city = store_list[i]['city']
-                except Exception as e:
-                    city = ''
-                    print(e)
-                try:
-                    state = store_list[i]['state_province']
-                    state = str(state).strip()
-                except Exception as e:
-                    print(e)
-                try:
-                    zip_code = store_list[i]['zip_postal_code']
-                except Exception as e:
-                    zip_code = ''
-                    print(e)
-                try:
-                    county = store_list[i]['country']
-                    if not county or county == "United States":
-                        county = "US"
-                except Exception as e:
-                    county = ''
-                    print(e)
-                try:
-                    phone = store_list[i]['phone']
-                except Exception as e:
-                    phone = ''
-                    print(e)
-                try:
-                    open_hours = ''
-                    store_status = "Open"
-                except Exception as e:
-                    open_hours = ''
-                    store_status = ''
-                    print(e)
-                try:
-                    website_url = store_list[i]['website_url']
-                    if website_url and ('http://' or 'https://') not in website_url:
-                        website_url = 'http://'+ website_url
-                except Exception as e:
-                    website_url = ''
-                    print(e)
-                try:
-                    provider = uniq_provider
-                except Exception as e:
-                    provider = ''
-                    print(e)
-                try:
-                    category = 'Apparel And Accessory Stores'
-                except Exception as e:
-                    category = ''
-                    print(e)
-                try:
-                    updated_date = datetime.datetime.today().strftime("%d-%m-%Y")
-                except Exception as e:
-                    updated_date = ''
-                    print(e)
-                try:
-                    country = store_list[i]['country']
-                    if not country or country == "United States":
-                        country = "US"
-                except Exception as e:
-                    country = ''
-                    print(e)
-                try:
-                    status = store_status
-                except Exception as e:
-                    status = ''
-                    print(e)
-                try:
-                    direction_url = ""
-                except Exception as e:
-                    direction_url = ''
-                    print(e)
-                try:
-                    pagesave_path = file_name
-                except Exception as e:
-                    pagesave_path = ''
-                    print(e)
+                store_no = store_list[i]['id']
+                name = store_list[i]['name']
+                latitude = store_list[i]['lat']
+                longitude = store_list[i]['lon']
+                street_1 = store_list[i]['street_address']
+                street_2 = store_list[i]['street_address_line2']
+                street_3 = store_list[i]['street_address_line3']
+                street = f"{street_1} {street_2} {street_3}"
+                city = store_list[i]['city']
+                state = store_list[i]['state_province']
+                zip_code = store_list[i]['zip_postal_code']
+                county = store_list[i]['country']
+                if not county or county == "United States":
+                    county = "US"
+                phone = store_list[i]['phone']
+                open_hours = ''
+                store_status = "Open"
+                website_url = store_list[i]['website_url']
+                if website_url and ('http://' or 'https://') not in website_url:
+                    website_url = 'http://' + website_url
+                provider = uniq_provider
+                category = 'Apparel And Accessory Stores'
+                updated_date = datetime.datetime.today().strftime("%d-%m-%Y")
+                country = store_list[i]['country']
+                if not country or country == "United States":
+                    country = "US"
+                status = store_status
+                direction_url = ""
+                pagesave_path = file_name
 
                 item = dataItem()
                 item['store_no'] = store_no

@@ -22,6 +22,4 @@ class WolverinePipeline:
     def process_item(self, item, spider):
         if isinstance(item, dataItem):
             obj.insert_data_table(item)
-        if isinstance(item,stateItem):
-            obj.insert_store_table(item)
         return item
